@@ -288,20 +288,13 @@ impl RegistrarModule for Namecheap {
         Box::pin(async move { Ok(None) })
     }
 
-    fn set_lock<'a>(
-        &'a self,
-        domain: &'a str,
-        locked: bool,
-    ) -> BoxFuture<'a, RegistrarResult<()>> {
+    fn set_lock<'a>(&'a self, domain: &'a str, locked: bool) -> BoxFuture<'a, RegistrarResult<()>> {
         Box::pin(async move {
             self.nc(
                 "namecheap.domains.setRegistrarLock",
                 &[
                     ("DomainName", domain.into()),
-                    (
-                        "LockAction",
-                        if locked { "LOCK" } else { "UNLOCK" }.into(),
-                    ),
+                    ("LockAction", if locked { "LOCK" } else { "UNLOCK" }.into()),
                 ],
             )
             .await
@@ -320,9 +313,12 @@ impl RegistrarModule for Namecheap {
             } else {
                 "namecheap.whoisguard.disable"
             };
-            self.nc(cmd, &[("DomainName", domain.into()), ("WhoisguardID", "0".into())])
-                .await
-                .map(|_| ())
+            self.nc(
+                cmd,
+                &[("DomainName", domain.into()), ("WhoisguardID", "0".into())],
+            )
+            .await
+            .map(|_| ())
         })
     }
 
